@@ -7,9 +7,9 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 
-namespace Narolith.AutoFeed;
+namespace AutoFeed;
 
-[BepInPlugin("narolith.autofeed", "Auto Feed", "0.0.1")]
+[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
     public static ConfigEntry<float> containerRange = default!;
