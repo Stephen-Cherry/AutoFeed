@@ -1,7 +1,7 @@
 {
-  "name": "Auto Feed",
-  "version_number": "0.0.1",
-  "website_url": "https://github.com/stephen-cherry/auto-feed",
+  "name": "AutoFeed",
+  "version_number": "0.0.2",
+  "website_url": "https://github.com/stephen-cherry/autofeed",
   "description": "This mod will automatically feed tameable creatures in the game with food from nearby chests.",
   "dependencies": []
 }
