@@ -4,8 +4,8 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Narolith.AutoFeed</AssemblyName>
     <Title>Auto Feed</Title>
-    <Description>My first plugin</Description>
-    <Version>0.0.1</Version>
+    <Description>Valheim mod to auto feed animals from a nearby chest</Description>
+    <Version>0.0.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
