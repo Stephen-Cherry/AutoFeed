@@ -14,72 +14,71 @@ public class Plugin : BaseUnityPlugin
 {
     public static ConfigEntry<float> containerRange = default!;
     public static ConfigEntry<bool> modEnabled = default!;
-    private static float lastFeed;
-    private static int feedCount;
+    private static readonly object lockObject = new();
+    private static float lastFeedTime = 0f;
+    private static readonly float feedInterval = 0.1f;
 
     private void Awake()
     {
         containerRange = Config.Bind(
             "General",
             "Container Range",
-            5f,
-            "The range in which the plugin will look for containers to feed from."
+            10f,
+            "The radiusRange in which the tames monster will look for containers to feed from."
         );
-        modEnabled = Config.Bind("General", "Enabled", true, "Enable or disable the plugin.");
+        modEnabled = Config.Bind("General", "Enabled", true, "Whether the mod is enabled.");
 
-        if (!modEnabled.Value)
-            return;
-
-        Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
+        if (modEnabled.Value)
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
     }
 
     [HarmonyPatch(typeof(MonsterAI), "UpdateConsumeItem")]
-    static class UpdateConsumeItem_Patch
+    static class UpdateConsumeItemPatch
     {
-        static void Postfix(
+        static async void Postfix(
             MonsterAI __instance,
             ZNetView ___m_nview,
             Character ___m_character,
-            Tameable ___m_tamable,
+            Tameable ___m_tameable,
             List<ItemDrop> ___m_consumeItems,
             bool __result
         )
         {
-            if (!modEnabled.Value)
+            bool ModEnabled() => modEnabled.Value;
+            bool HasFoundFood() => __result;
+            bool HasCharacterData() => ___m_character is not null;
+            bool HasValidFoodTypes() =>
+                ___m_consumeItems is not null && ___m_consumeItems.Count > 0;
+            bool IsTamedAndHungry() => ___m_tameable is not null && ___m_tameable.IsHungry();
+            bool IsViewOwner() => ___m_nview is not null && ___m_nview.IsOwner();
+
+            if (
+                !ModEnabled()
+                || !IsViewOwner()
+                || !HasCharacterData()
+                || !IsTamedAndHungry()
+                || !HasValidFoodTypes()
+                || HasFoundFood()
+            )
                 return;
 
-            if (__result)
-                return;
-
-            if (___m_character is null)
-                return;
-
-            if (___m_nview is null || !___m_nview.IsOwner())
-                return;
-
-            if (___m_tamable is null || !___m_tamable.IsHungry())
-                return;
-
-            if (___m_consumeItems is null || ___m_consumeItems?.Count == 0)
-                return;
-
-            var nearbyContainers = GetNearbyContainers(
+            var nearbyContainers = GetContainersInRange(
                 ___m_character.gameObject.transform.position,
                 containerRange.Value
             );
 
-            if (
-                ContainersContainItemFromList(
-                    nearbyContainers,
-                    ___m_consumeItems!,
-                    out var container,
-                    out var item
-                )
-            )
+            var foundContainerWithFood = ContainersContainItemFromList(
+                nearbyContainers,
+                ___m_consumeItems,
+                out var container,
+                out var item
+            );
+
+            if (foundContainerWithFood)
             {
-                FeedMonsterWithThrottling(
+                await FeedMonsterWithThrottling(
                     __instance,
-                    ___m_tamable,
+                    ___m_tameable,
                     ___m_character,
                     container!,
                     item!
@@ -88,23 +87,25 @@ public class Plugin : BaseUnityPlugin
         }
     }
 
-    private static List<Container> GetNearbyContainers(Vector3 center, float range)
+    private static List<Container> GetContainersInRange(Vector3 center, float radiusRange)
     {
         try
         {
-            var colliders = Physics.OverlapSphere(
+            Collider[] collidersInRange = Physics.OverlapSphere(
                 center,
-                Mathf.Max(range, 0),
+                Mathf.Max(radiusRange, 0),
                 LayerMask.GetMask("piece")
             );
-            var containers = colliders
+
+            var containers = collidersInRange
                 .Select(collider => collider.GetComponentInParent<Container>())
                 .Where(container =>
-                    container != null
-                    && container.GetComponent<ZNetView>()?.IsValid() == true
+                    container is not null
+                    && IsValidZNetView(container.GetComponent<ZNetView>())
                     && IsNonEmptyChest(container)
                 )
                 .OrderBy(container => Vector3.Distance(container.transform.position, center));
+
             return [.. containers];
         }
         catch
@@ -113,11 +114,13 @@ public class Plugin : BaseUnityPlugin
         }
     }
 
-    private static bool IsNonEmptyChest(Container container) =>
-        (container.name.StartsWith("piece_chest") || container.name.StartsWith("Container"))
-        && container.GetInventory() != null;
+    private static bool IsValidZNetView(ZNetView? zNetView) =>
+        zNetView is not null && zNetView.IsValid();
 
-    private static async void FeedMonsterWithThrottling(
+    private static bool IsNonEmptyChest(Container container) =>
+        container.name.StartsWith("piece_chest") && container.GetInventory() is not null;
+
+    private static async Task FeedMonsterWithThrottling(
         MonsterAI __instance,
         Tameable ___m_tamable,
         Character ___m_character,
@@ -125,25 +128,14 @@ public class Plugin : BaseUnityPlugin
         ItemDrop.ItemData item
     )
     {
-        if (Time.time - lastFeed < 0.1)
+        if (FeedIntervalPasssed())
         {
-            feedCount++;
-            await FeedAnimal(
-                __instance,
-                ___m_tamable,
-                ___m_character,
-                container,
-                item,
-                feedCount * 33
-            );
-        }
-        else
-        {
-            feedCount = 0;
-            lastFeed = Time.time;
             await FeedAnimal(__instance, ___m_tamable, ___m_character, container, item, 0);
+            lastFeedTime = Time.time;
         }
     }
+
+    private static bool FeedIntervalPasssed() => Time.time - lastFeedTime >= feedInterval;
 
     private static bool ContainersContainItemFromList(
         List<Container> containers,
