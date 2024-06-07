@@ -14,7 +14,6 @@ public class Plugin : BaseUnityPlugin
 {
     public static ConfigEntry<float> containerRange = default!;
     public static ConfigEntry<bool> modEnabled = default!;
-    private static readonly object lockObject = new();
     private static float lastFeedTime = 0f;
     private static readonly float feedInterval = 0.1f;
 
