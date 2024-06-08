@@ -5,6 +5,7 @@
 - Added more details to README
 - Increased default range from 5 to 10
 - Rewrote global feeding delay logic
+- Removed ownership check
 
 <details>
 <summary>Click to expand previous changes</summary>
