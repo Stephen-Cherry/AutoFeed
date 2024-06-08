@@ -36,7 +36,6 @@ public class Plugin : BaseUnityPlugin
     {
         static async void Postfix(
             MonsterAI __instance,
-            ZNetView ___m_nview,
             Character ___m_character,
             Tameable ___m_tamable,
             List<ItemDrop> ___m_consumeItems,
@@ -49,11 +48,9 @@ public class Plugin : BaseUnityPlugin
             bool HasValidFoodTypes() =>
                 ___m_consumeItems is not null && ___m_consumeItems.Count > 0;
             bool IsTamedAndHungry() => ___m_tamable is not null && ___m_tamable.IsHungry();
-            bool IsViewOwner() => ___m_nview is not null && ___m_nview.IsOwner();
 
             if (
                 !ModEnabled()
-                || !IsViewOwner()
                 || !HasCharacterData()
                 || !IsTamedAndHungry()
                 || !HasValidFoodTypes()
