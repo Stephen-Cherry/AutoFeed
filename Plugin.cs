@@ -38,7 +38,7 @@ public class Plugin : BaseUnityPlugin
             MonsterAI __instance,
             ZNetView ___m_nview,
             Character ___m_character,
-            Tameable ___m_tameable,
+            Tameable ___m_tamable,
             List<ItemDrop> ___m_consumeItems,
             bool __result
         )
@@ -48,7 +48,7 @@ public class Plugin : BaseUnityPlugin
             bool HasCharacterData() => ___m_character is not null;
             bool HasValidFoodTypes() =>
                 ___m_consumeItems is not null && ___m_consumeItems.Count > 0;
-            bool IsTamedAndHungry() => ___m_tameable is not null && ___m_tameable.IsHungry();
+            bool IsTamedAndHungry() => ___m_tamable is not null && ___m_tamable.IsHungry();
             bool IsViewOwner() => ___m_nview is not null && ___m_nview.IsOwner();
 
             if (
@@ -77,7 +77,7 @@ public class Plugin : BaseUnityPlugin
             {
                 await FeedMonsterWithThrottling(
                     __instance,
-                    ___m_tameable,
+                    ___m_tamable,
                     ___m_character,
                     container!,
                     item!
