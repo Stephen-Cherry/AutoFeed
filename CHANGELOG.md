@@ -1,3 +1,8 @@
+## 0.2.1
+
+- Removed unnecessary async delay in FeedAnimal
+- Codebase improvements
+
 ## 0.2.0
 
 - Changed targeted framework
