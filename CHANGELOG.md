@@ -3,14 +3,14 @@
 - Removed unnecessary async delay in FeedAnimal
 - Codebase improvements
 
+<details>
+<summary>Click to expand previous changes</summary>
+
 ## 0.2.0
 
 - Changed targeted framework
 - Added Jotunn dependency
 - Added requirement Client/Server to have latest Minor version installed
-
-<details>
-<summary>Click to expand previous changes</summary>
 
 ## 0.1.0
 
