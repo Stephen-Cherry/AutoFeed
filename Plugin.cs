@@ -10,6 +10,11 @@ using UnityEngine;
 namespace AutoFeed;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+[BepInDependency(Jotunn.Main.ModGuid)]
+[Jotunn.Utils.NetworkCompatibility(
+    Jotunn.Utils.CompatibilityLevel.EveryoneMustHaveMod,
+    Jotunn.Utils.VersionStrictness.Minor
+)]
 public class Plugin : BaseUnityPlugin
 {
     public static ConfigEntry<float> containerRange = default!;
