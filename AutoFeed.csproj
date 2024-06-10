@@ -5,7 +5,7 @@
     <AssemblyName>Narolith.AutoFeed</AssemblyName>
     <Title>Auto Feed</Title>
     <Description>Valheim mod to auto feed animals from a nearby chest</Description>
-    <Version>0.2.1</Version>
+    <Version>0.2.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>

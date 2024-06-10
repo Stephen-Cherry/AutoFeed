@@ -1,10 +1,14 @@
+## 0.2.2
+
+- Fixed project version mismatch
+
+<details>
+<summary>Click to expand previous changes</summary>
+
 ## 0.2.1
 
 - Removed unnecessary async delay in FeedAnimal
 - Codebase improvements
-
-<details>
-<summary>Click to expand previous changes</summary>
 
 ## 0.2.0
 
