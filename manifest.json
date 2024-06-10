@@ -1,7 +1,7 @@
 {
   "name": "AutoFeed",
-  "version_number": "0.2.2",
+  "version_number": "0.2.3",
   "website_url": "https://github.com/stephen-cherry/autofeed",
   "description": "This mod will automatically feed tameable creatures in the game with food from nearby chests.",
-  "dependencies": []
+  "dependencies": ["ValheimModding-Jotunn-2.20.1"]
 }

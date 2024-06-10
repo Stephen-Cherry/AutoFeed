@@ -1,3 +1,8 @@
+## 0.2.3
+
+- Added missing Thunderstore dependency to Jotunn
+- Added manifest version script to avoid mismatch versions
+
 ## 0.2.2
 
 - Fixed project version mismatch
