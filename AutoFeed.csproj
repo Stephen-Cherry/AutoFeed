@@ -5,12 +5,16 @@
     <AssemblyName>Narolith.AutoFeed</AssemblyName>
     <Title>Auto Feed</Title>
     <Description>Valheim mod to auto feed animals from a nearby chest</Description>
-    <Version>0.2.2</Version>
+    <Version>0.2.3</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="powershell -File Scripts/UpdateManifest.ps1" />
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
