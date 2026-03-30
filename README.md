@@ -1,25 +1,30 @@
 # Auto Feed
 
-Auto Feed is a Valheim mod that automatically feeds tameable creatures in the game with food from nearby chests. This mod is perfect for players who want to focus more on adventuring and less on the upkeep of their tamed animals. No more food on the floor!
+Auto Feed is a Valheim mod that automatically feeds tameable creatures from nearby chests. No more dropping food on the ground — animals feed themselves as long as a chest with the right food is in range.
 
 ## Features
 
-- **Automatic Feeding**: Tameable creatures within range of a chest containing their supported food will be automatically fed.
-- **Configurable Range**: You can set the radius the tameable creatures will look for containers to feed from.
-
-## Configuration
-
-The mod comes with two main configuration parameters:
-
-- **Container Range**: This parameter determines the radius within which the tameable creatures will look for containers to feed from. The default value is 10 (units).
-- **Enabled**: This parameter allows you to enable or disable the mod. By default, the mod is enabled.
+- **Automatic Feeding**: Tameable creatures within range of a chest containing their food will be fed automatically.
+- **Configurable Range**: Set the radius creatures will search for containers.
+- **Chest Filtering**: Optionally restrict feeding to specific chest types by name prefix.
+- **Server-side**: Install on the server only — clients do not need the mod.
 
 ## Installation
 
-To install the mod, you need to have BepInEx installed in your Valheim game. Once BepInEx is installed, simply download the Auto Feed mod and place it in the BepInEx plugins folder.
+1. Install [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/) on your dedicated server.
+2. Place `Narolith.AutoFeed.dll` in `BepInEx/plugins/` on the server.
+3. Clients do not need to install anything.
+
+## Configuration
+
+Configuration is generated at `BepInEx/config/Narolith.AutoFeed.cfg` on first run.
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| Container Range | `10` | Radius (units) in which creatures search for food containers. |
+| Chest Prefix | `piece_chest` | Only containers whose name starts with this prefix are eligible. Leave empty to allow all containers. |
+| Enabled | `true` | Enable or disable the mod. |
 
 ## Support
 
-If you encounter any issues or have any suggestions, feel free to open an issue or pull request on the [GitHub repository](https://github.com/stephen-cherry/autofeed).
-
-Enjoy your adventures in Valheim with your well-fed companions!
+If you encounter any issues or have suggestions, open an issue on the [GitHub repository](https://github.com/stephen-cherry/autofeed).
