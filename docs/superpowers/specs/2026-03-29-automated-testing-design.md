@@ -19,21 +19,27 @@ Three logic pieces are extracted. Everything else (Harmony patch wiring, invento
 ```
 AutoFeed/
 ├── AutoFeed.Core/
-│   ├── AutoFeed.Core.csproj    # net48, no game DLL refs
-│   └── FeedingLogic.cs         # all extracted logic
+│   ├── AutoFeed.Core.csproj    # netstandard2.0 — compatible with net48 (plugin) and net8 (tests)
+│   └── FeedingLogic.cs
 │
 ├── AutoFeed/                   # existing plugin
-│   ├── AutoFeed.csproj         # references AutoFeed.Core + game DLLs
-│   ├── Plugin.cs
-│   ├── PluginSettings.cs
+│   ├── AutoFeed.csproj         # net48, references AutoFeed.Core + game DLLs
+│   ├── GlobalUsing.cs          # add: global using AutoFeed.Core;
 │   └── Extensions/             # thin adapters calling FeedingLogic
 │
-└── AutoFeed.Tests/
-    ├── AutoFeed.Tests.csproj   # references AutoFeed.Core only
-    └── FeedingLogicTests.cs
+├── AutoFeed.Tests/
+│   ├── AutoFeed.Tests.csproj   # net8.0 — runs on ubuntu-latest CI without Mono
+│   └── FeedingLogicTests.cs
+│
+└── .github/
+    └── workflows/
+        └── test.yml
 ```
 
-CI installs only the .NET SDK. No game DLLs required anywhere in the test pipeline.
+**Targeting rationale:**
+- `AutoFeed.Core` targets `netstandard2.0` so it is compatible with both the `net48` plugin and the `net8.0` test project.
+- `AutoFeed.Tests` targets `net8.0` so tests run on a standard `ubuntu-latest` GitHub Actions runner without Mono.
+- `AutoFeed` (plugin) stays on `net48` — required by BepInEx/Valheim.
 
 ## AutoFeed.Core
 
@@ -42,7 +48,7 @@ CI installs only the .NET SDK. No game DLLs required anywhere in the test pipeli
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>AutoFeed.Core</AssemblyName>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
@@ -53,6 +59,8 @@ CI installs only the .NET SDK. No game DLLs required anywhere in the test pipeli
 ### FeedingLogic.cs
 
 ```csharp
+using System.Collections.Generic;
+
 namespace AutoFeed.Core;
 
 public static class FeedingLogic
@@ -63,7 +71,7 @@ public static class FeedingLogic
     /// </summary>
     public static string? FindConsumableInInventory(
         IEnumerable<string> inventoryItemNames,
-        IReadOnlySet<string> consumableNames)
+        HashSet<string> consumableNames)
     {
         foreach (var name in inventoryItemNames)
             if (consumableNames.Contains(name))
@@ -101,11 +109,33 @@ public static class FeedingLogic
 }
 ```
 
-## Adapter Changes
+Note: `IReadOnlySet<T>` is not available in `netstandard2.0` (introduced in .NET 5). `HashSet<string>` is used instead — callers already construct a HashSet so there is no extra allocation, and `Contains` remains O(1).
 
-### MonsterAIExtensions.cs
+## Plugin Changes
 
-Replace `FeedIntervalPassed` call with `FeedingLogic.ShouldFeed`. Delete `FeedIntervalPassed`.
+### AutoFeed.csproj
+
+Add a `ProjectReference` to `AutoFeed.Core`:
+
+```xml
+<ItemGroup>
+  <ProjectReference Include="..\AutoFeed.Core\AutoFeed.Core.csproj" />
+</ItemGroup>
+```
+
+### GlobalUsing.cs
+
+Add one line:
+
+```csharp
+global using AutoFeed.Core;
+```
+
+This makes `FeedingLogic` available without a per-file using in the adapter files.
+
+### Adapter Changes
+
+**`MonsterAIExtensions.cs`** — replace `FeedIntervalPassed` with `FeedingLogic.ShouldFeed`. Delete `FeedIntervalPassed`.
 
 ```csharp
 var animalId = ___m_character.GetInstanceID();
@@ -116,9 +146,7 @@ if (FeedingLogic.ShouldFeed(animalId, Time.time, Plugin.LastFeedTimes, PluginSet
 }
 ```
 
-### ColliderExtensions.cs
-
-`IsNonEmptyChest` delegates to `IsEligibleContainer`:
+**`ColliderExtensions.cs`** — `IsNonEmptyChest` delegates to `IsEligibleContainer`. The `?.` operator preserves the existing null-safety guard on `GetInventory()`:
 
 ```csharp
 private static bool IsNonEmptyChest(Container container)
@@ -132,9 +160,7 @@ private static bool IsNonEmptyChest(Container container)
 }
 ```
 
-### ContainerExtensions.cs
-
-`TryFindMatchingItem` extracts item names and delegates to `FindConsumableInInventory`:
+**`ContainerExtensions.cs`** — `TryFindMatchingItem` extracts item names and delegates to `FindConsumableInInventory`. `CreateItemDictionary` is unchanged.
 
 ```csharp
 private static bool TryFindMatchingItem(
@@ -142,7 +168,7 @@ private static bool TryFindMatchingItem(
     Dictionary<string, List<ItemDrop.ItemData>> itemDropDict,
     out ItemDrop.ItemData? targetItem)
 {
-    var consumableNames = itemDropDict.Keys.ToHashSet();
+    var consumableNames = new HashSet<string>(itemDropDict.Keys);
     var match = FeedingLogic.FindConsumableInInventory(
         items.Select(i => i.m_shared.m_name),
         consumableNames
@@ -159,8 +185,6 @@ private static bool TryFindMatchingItem(
 }
 ```
 
-`CreateItemDictionary` is unchanged.
-
 ## AutoFeed.Tests
 
 ### AutoFeed.Tests.csproj
@@ -168,8 +192,9 @@ private static bool TryFindMatchingItem(
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
@@ -184,27 +209,168 @@ private static bool TryFindMatchingItem(
 
 ### FeedingLogicTests.cs (11 tests)
 
-**FindConsumableInInventory (3 tests):**
-- Returns matched name when inventory contains consumable
-- Returns null when no match
-- Returns null when inventory empty
+```csharp
+using System.Collections.Generic;
+using AutoFeed.Core;
+using Xunit;
 
-**ShouldFeed (4 tests):**
-- Returns true when animal never fed
-- Returns true when interval elapsed
-- Returns false when interval not elapsed
-- Tracks animals independently (animal 1 throttled, animal 2 not)
+namespace AutoFeed.Tests;
 
-**IsEligibleContainer (4 tests):**
-- Returns true when prefix matches and has items
-- Returns false when empty
-- Returns false when prefix mismatch
-- Returns true when prefix empty (allows any container)
+public class FeedingLogicTests
+{
+    // FindConsumableInInventory
 
-## CI Integration
+    [Fact]
+    public void FindConsumable_ReturnsMatchedName_WhenInventoryContainsConsumable()
+    {
+        var result = FeedingLogic.FindConsumableInInventory(
+            new[] { "Raspberry", "Mushroom", "Carrot" },
+            new HashSet<string> { "Carrot", "Turnip" }
+        );
+        Assert.Equal("Carrot", result);
+    }
 
-Add a GitHub Actions workflow that runs `dotnet test AutoFeed.Tests` on push and pull request. Branch protection on `main` requires this check to pass before merge.
+    [Fact]
+    public void FindConsumable_ReturnsNull_WhenNoMatch()
+    {
+        var result = FeedingLogic.FindConsumableInInventory(
+            new[] { "Raspberry", "Mushroom" },
+            new HashSet<string> { "Carrot", "Turnip" }
+        );
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void FindConsumable_ReturnsNull_WhenInventoryEmpty()
+    {
+        var result = FeedingLogic.FindConsumableInInventory(
+            System.Array.Empty<string>(),
+            new HashSet<string> { "Carrot" }
+        );
+        Assert.Null(result);
+    }
+
+    // ShouldFeed
+
+    [Fact]
+    public void ShouldFeed_ReturnsTrue_WhenAnimalNeverFed()
+    {
+        var result = FeedingLogic.ShouldFeed(
+            animalId: 1,
+            currentTime: 5f,
+            lastFeedTimes: new Dictionary<int, float>(),
+            interval: 0.1f
+        );
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void ShouldFeed_ReturnsTrue_WhenIntervalElapsed()
+    {
+        var result = FeedingLogic.ShouldFeed(
+            animalId: 1,
+            currentTime: 5.2f,
+            lastFeedTimes: new Dictionary<int, float> { [1] = 5.0f },
+            interval: 0.1f
+        );
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void ShouldFeed_ReturnsFalse_WhenIntervalNotElapsed()
+    {
+        var result = FeedingLogic.ShouldFeed(
+            animalId: 1,
+            currentTime: 5.05f,
+            lastFeedTimes: new Dictionary<int, float> { [1] = 5.0f },
+            interval: 0.1f
+        );
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ShouldFeed_TracksAnimalsIndependently()
+    {
+        var lastFeedTimes = new Dictionary<int, float> { [1] = 5.0f };
+
+        Assert.False(FeedingLogic.ShouldFeed(1, 5.05f, lastFeedTimes, 0.1f));
+        Assert.True(FeedingLogic.ShouldFeed(2, 5.05f, lastFeedTimes, 0.1f));
+    }
+
+    // IsEligibleContainer
+
+    [Fact]
+    public void IsEligibleContainer_ReturnsTrue_WhenPrefixMatchesAndHasItems()
+    {
+        Assert.True(FeedingLogic.IsEligibleContainer("piece_chest_wood", 3, "piece_chest"));
+    }
+
+    [Fact]
+    public void IsEligibleContainer_ReturnsFalse_WhenEmpty()
+    {
+        Assert.False(FeedingLogic.IsEligibleContainer("piece_chest_wood", 0, "piece_chest"));
+    }
+
+    [Fact]
+    public void IsEligibleContainer_ReturnsFalse_WhenPrefixMismatch()
+    {
+        Assert.False(FeedingLogic.IsEligibleContainer("Cart", 5, "piece_chest"));
+    }
+
+    [Fact]
+    public void IsEligibleContainer_ReturnsTrue_WhenPrefixEmpty_AllowsAnyContainer()
+    {
+        Assert.True(FeedingLogic.IsEligibleContainer("Cart", 5, ""));
+    }
+}
+```
+
+## CI Workflow
+
+**File:** `.github/workflows/test.yml`
+
+```yaml
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore AutoFeed.Tests/AutoFeed.Tests.csproj
+
+      - name: Test
+        run: dotnet test AutoFeed.Tests/AutoFeed.Tests.csproj --no-restore --verbosity normal
+```
+
+Note: Only `AutoFeed.Tests` is restored and tested in CI. The plugin project (`AutoFeed`) is not built in CI because it requires game DLLs that are not available.
 
 ## Solution File
 
-`AutoFeed.sln` must be updated to include `AutoFeed.Core` and `AutoFeed.Tests` projects.
+Add both new projects to `AutoFeed.sln` using the CLI:
+
+```bash
+dotnet sln AutoFeed.sln add AutoFeed.Core/AutoFeed.Core.csproj
+dotnet sln AutoFeed.sln add AutoFeed.Tests/AutoFeed.Tests.csproj
+```
+
+## Branch Protection
+
+After the workflow is merged to `main`, enable branch protection on GitHub:
+
+- Settings → Branches → Add rule for `main`
+- Require status checks: select the `test` job
+- Require branches to be up to date before merging
