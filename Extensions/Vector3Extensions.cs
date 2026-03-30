@@ -14,8 +14,9 @@ public static class Vector3Extensions
 
             return collidersInRange.GetContainersOrderedByDistanceFromCenter(center);
         }
-        catch
+        catch (Exception e)
         {
+            Plugin.Log.LogWarning($"AutoFeed: Error getting containers in range: {e.Message}");
             return [];
         }
     }
