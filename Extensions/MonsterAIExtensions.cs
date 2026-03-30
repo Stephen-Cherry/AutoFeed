@@ -10,15 +10,16 @@ public static class MonsterAIExtensions
         ItemDrop.ItemData item
     )
     {
-        if (FeedIntervalPassed())
+        var animalId = ___m_character.GetInstanceID();
+        if (FeedIntervalPassed(animalId))
         {
             FeedAnimal(__instance, ___m_tamable, ___m_character, container, item);
-            Plugin.LastFeedTime = Time.time;
+            Plugin.LastFeedTimes[animalId] = Time.time;
         }
     }
 
-    public static void FeedAnimal(
-        this MonsterAI monsterAI,
+    private static void FeedAnimal(
+        MonsterAI monsterAI,
         Tameable tamable,
         Character character,
         Container container,
@@ -31,12 +32,8 @@ public static class MonsterAIExtensions
         monsterAI.ConsumeItem(character);
 
         container.GetInventory().RemoveItem(item.m_shared.m_name, 1);
-        typeof(Inventory)
-            .GetMethod("Changed", BindingFlags.NonPublic | BindingFlags.Instance)
-            .Invoke(container.GetInventory(), []);
-        typeof(Container)
-            .GetMethod("Save", BindingFlags.NonPublic | BindingFlags.Instance)
-            .Invoke(container, []);
+        Traverse.Create(container.GetInventory()).Method("Changed").GetValue();
+        Traverse.Create(container).Method("Save").GetValue();
     }
 
     public static void ConsumeItem(this MonsterAI monsterAI, Character character)
@@ -57,6 +54,10 @@ public static class MonsterAIExtensions
             .SetTrigger("consume");
     }
 
-    private static bool FeedIntervalPassed() =>
-        Time.time - Plugin.LastFeedTime >= PluginSettings.FeedInterval;
+    private static bool FeedIntervalPassed(int animalId)
+    {
+        if (!Plugin.LastFeedTimes.TryGetValue(animalId, out float lastTime))
+            return true;
+        return Time.time - lastTime >= PluginSettings.FeedInterval;
+    }
 }
