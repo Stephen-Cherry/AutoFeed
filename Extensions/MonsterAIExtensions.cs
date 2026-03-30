@@ -11,7 +11,7 @@ public static class MonsterAIExtensions
     )
     {
         var animalId = ___m_character.GetInstanceID();
-        if (FeedIntervalPassed(animalId))
+        if (FeedingLogic.ShouldFeed(animalId, Time.time, Plugin.LastFeedTimes, PluginSettings.FeedInterval))
         {
             FeedAnimal(__instance, ___m_tamable, ___m_character, container, item);
             Plugin.LastFeedTimes[animalId] = Time.time;
@@ -54,10 +54,4 @@ public static class MonsterAIExtensions
         animator?.SetTrigger("consume");
     }
 
-    private static bool FeedIntervalPassed(int animalId)
-    {
-        if (!Plugin.LastFeedTimes.TryGetValue(animalId, out float lastTime))
-            return true;
-        return Time.time - lastTime >= PluginSettings.FeedInterval;
-    }
 }

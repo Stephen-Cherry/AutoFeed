@@ -50,13 +50,16 @@ public static class ContainerExtensions
         out ItemDrop.ItemData? targetItem
     )
     {
-        foreach (var item in items)
+        var consumableNames = new HashSet<string>(itemDropDict.Keys);
+        var match = FeedingLogic.FindConsumableInInventory(
+            items.Select(i => i.m_shared.m_name),
+            consumableNames
+        );
+
+        if (match is not null)
         {
-            if (itemDropDict.TryGetValue(item.m_shared.m_name, out var matchingItems))
-            {
-                targetItem = matchingItems.First();
-                return true;
-            }
+            targetItem = itemDropDict[match].First();
+            return true;
         }
 
         targetItem = null;

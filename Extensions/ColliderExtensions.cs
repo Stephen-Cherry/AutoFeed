@@ -23,11 +23,11 @@ public static class ColliderExtensions
 
     private static bool IsNonEmptyChest(Container container)
     {
-        var prefix = Plugin.ChestPrefix.Value;
-        if (!string.IsNullOrEmpty(prefix) && !container.name.StartsWith(prefix))
-            return false;
-
         var inventory = container.GetInventory();
-        return inventory is not null && inventory.NrOfItems() > 0;
+        return FeedingLogic.IsEligibleContainer(
+            container.name,
+            inventory?.NrOfItems() ?? 0,
+            Plugin.ChestPrefix.Value
+        );
     }
 }
