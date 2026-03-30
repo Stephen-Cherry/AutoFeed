@@ -10,7 +10,7 @@ dotnet build AutoFeed.csproj -c Release
 
 echo "Packaging..."
 STAGING=$(mktemp -d)
-cp manifest.json "$STAGING/"
+jq --arg v "$VERSION" '.version_number = $v' manifest.json > "$STAGING/manifest.json"
 cp icon.png "$STAGING/"
 cp README.md "$STAGING/"
 cp "bin/Release/net48/Narolith.AutoFeed.dll" "$STAGING/"
