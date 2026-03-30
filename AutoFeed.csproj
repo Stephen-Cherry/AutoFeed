@@ -7,9 +7,8 @@
     <Description>Valheim mod to auto feed animals from a nearby chest</Description>
     <Version>0.2.3</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
