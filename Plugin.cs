@@ -1,4 +1,4 @@
-﻿namespace AutoFeed;
+namespace AutoFeed;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 [BepInDependency(Jotunn.Main.ModGuid)]
@@ -8,22 +8,36 @@
 )]
 public class Plugin : BaseUnityPlugin
 {
-    public static float LastFeedTime = 0f;
+    internal static ManualLogSource Log = null!;
+    private static Harmony? _harmony;
+
+    public static readonly Dictionary<int, float> LastFeedTimes = new();
+
     public static ConfigEntry<float> ContainerRange = default!;
     public static ConfigEntry<bool> ModEnabled = default!;
+    public static ConfigEntry<string> ChestPrefix = default!;
 
     private void Awake()
     {
+        Log = Logger;
+        Log.LogInfo($"AutoFeed v{PluginInfo.PLUGIN_VERSION} loading...");
+
         ContainerRange = Config.Bind(
             "General",
             "Container Range",
             10f,
-            "The radiusRange in which the tames monster will look for containers to feed from."
+            "The radius in which a tamed creature will look for containers to feed from."
         );
         ModEnabled = Config.Bind("General", "Enabled", true, "Whether the mod is enabled.");
+        ChestPrefix = Config.Bind(
+            "General",
+            "Chest Prefix",
+            "piece_chest",
+            "Name prefix for containers eligible for auto-feeding. Leave empty to allow all containers."
+        );
 
-        if (ModEnabled.Value)
-            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
+        _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
+        Log.LogInfo("AutoFeed loaded.");
     }
 
     [HarmonyPatch(typeof(MonsterAI), "UpdateConsumeItem")]
