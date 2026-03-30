@@ -27,4 +27,8 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2"
       PrivateAssets="all" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="AutoFeed.Core\AutoFeed.Core.csproj" />
+  </ItemGroup>
 </Project>
