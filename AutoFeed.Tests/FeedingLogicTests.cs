@@ -82,9 +82,9 @@ public class FeedingLogicTests
     {
         var result = FeedingLogic.ShouldFeed(
             animalId: 1,
-            currentTime: 5.1f,
-            lastFeedTimes: new Dictionary<int, float> { [1] = 5.0f },
-            interval: 0.1f
+            currentTime: 1.0f,
+            lastFeedTimes: new Dictionary<int, float> { [1] = 0.5f },
+            interval: 0.5f
         );
         Assert.True(result);
     }
