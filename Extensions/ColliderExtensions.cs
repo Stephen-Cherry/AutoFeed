@@ -21,7 +21,13 @@ public static class ColliderExtensions
     private static bool IsValidZNetView(ZNetView? zNetView) =>
         zNetView is not null && zNetView.IsValid();
 
-    private static bool IsNonEmptyChest(Container container) =>
-        container.name.StartsWith(PluginSettings.ChestPrefix)
-        && container.GetInventory() is not null;
+    private static bool IsNonEmptyChest(Container container)
+    {
+        var prefix = Plugin.ChestPrefix.Value;
+        if (!string.IsNullOrEmpty(prefix) && !container.name.StartsWith(prefix))
+            return false;
+
+        var inventory = container.GetInventory();
+        return inventory is not null && inventory.NrOfItems() > 0;
+    }
 }
