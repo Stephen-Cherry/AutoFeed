@@ -19,6 +19,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Run tests
+        run: dotnet test AutoFeed.Tests/AutoFeed.Tests.csproj --verbosity normal
+
       - name: Extract version from tag
         id: version
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
@@ -29,23 +32,8 @@ jobs:
             '.version_number = $v' manifest.json > manifest.tmp \
             && mv manifest.tmp manifest.json
 
-      - name: Build
-        run: dotnet build AutoFeed.csproj -c Release
-
-      - name: Run tests
-        run: dotnet test AutoFeed.Tests/AutoFeed.Tests.csproj --no-restore --verbosity normal
-
-      - name: Package for Thunderstore
-        run: |
-          mkdir thunderstore
-          cp manifest.json thunderstore/
-          cp icon.png thunderstore/
-          cp README.md thunderstore/
-          cp AutoFeed/bin/Release/net48/Narolith.AutoFeed.dll thunderstore/
-          cd thunderstore && zip -r "../AutoFeed-${{ steps.version.outputs.version }}.zip" .
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: AutoFeed-${{ steps.version.outputs.version }}.zip
+          files: manifest.json
           body_path: CHANGELOG.md

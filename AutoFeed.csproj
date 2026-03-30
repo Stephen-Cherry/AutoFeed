@@ -12,6 +12,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AutoFeed.Core\**" />
+    <Compile Remove="AutoFeed.Tests\**" />
+    <EmbeddedResource Remove="AutoFeed.Core\**" />
+    <EmbeddedResource Remove="AutoFeed.Tests\**" />
+    <None Remove="AutoFeed.Core\**" />
+    <None Remove="AutoFeed.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
