@@ -34,8 +34,14 @@ jobs:
             '.version_number = $v' manifest.json > manifest.tmp \
             && mv manifest.tmp manifest.json
 
+      - name: Extract release notes
+        id: notes
+        run: |
+          awk "/^## ${{ steps.version.outputs.version }}/{found=1; next} found && /^## /{exit} found{print}" \
+            CHANGELOG.md > release-notes.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: manifest.json
-          body_path: CHANGELOG.md
+          body_path: release-notes.md
