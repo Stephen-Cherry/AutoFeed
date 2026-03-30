@@ -1,3 +1,7 @@
+## 0.3.1
+
+- Updated README with server-side installation instructions and configuration table
+
 ## 0.3.0
 
 - Mod is now server-side only — install on the server, clients no longer need it
