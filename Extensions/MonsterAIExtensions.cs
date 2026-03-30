@@ -47,11 +47,11 @@ public static class MonsterAIExtensions
             variant: -1
         );
 
-        Traverse
+        var animator = Traverse
             .Create(monsterAI)
             .Field("m_animator")
-            .GetValue<ZSyncAnimation>()
-            .SetTrigger("consume");
+            .GetValue<ZSyncAnimation>();
+        animator?.SetTrigger("consume");
     }
 
     private static bool FeedIntervalPassed(int animalId)
