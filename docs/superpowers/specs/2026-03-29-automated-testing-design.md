@@ -16,22 +16,26 @@ Three logic pieces are extracted. Everything else (Harmony patch wiring, invento
 
 ## Project Structure
 
+The repo root IS the plugin directory — `AutoFeed.csproj` and `AutoFeed.sln` live at the root. New projects are siblings alongside the existing files:
+
 ```
-AutoFeed/
-├── AutoFeed.Core/
+(repo root)  ← /home/narolith/Projects/AutoFeed/
+├── AutoFeed.csproj             # existing plugin (net48)
+├── AutoFeed.sln                # existing solution — add new projects to this
+├── GlobalUsing.cs              # add: global using AutoFeed.Core;
+├── Plugin.cs
+├── PluginSettings.cs
+├── Extensions/                 # thin adapters calling FeedingLogic
+│
+├── AutoFeed.Core/              # new
 │   ├── AutoFeed.Core.csproj    # netstandard2.0 — compatible with net48 (plugin) and net8 (tests)
 │   └── FeedingLogic.cs
 │
-├── AutoFeed/                   # existing plugin
-│   ├── AutoFeed.csproj         # net48, references AutoFeed.Core + game DLLs
-│   ├── GlobalUsing.cs          # add: global using AutoFeed.Core;
-│   └── Extensions/             # thin adapters calling FeedingLogic
-│
-├── AutoFeed.Tests/
+├── AutoFeed.Tests/             # new
 │   ├── AutoFeed.Tests.csproj   # net8.0 — runs on ubuntu-latest CI without Mono
 │   └── FeedingLogicTests.cs
 │
-└── .github/
+└── .github/                    # new
     └── workflows/
         └── test.yml
 ```
@@ -360,7 +364,7 @@ Note: Only `AutoFeed.Tests` is restored and tested in CI. The plugin project (`A
 
 ## Solution File
 
-Add both new projects to `AutoFeed.sln` using the CLI:
+`AutoFeed.sln` already exists at the repo root. Add both new projects to it:
 
 ```bash
 dotnet sln AutoFeed.sln add AutoFeed.Core/AutoFeed.Core.csproj
