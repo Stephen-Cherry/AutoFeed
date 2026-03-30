@@ -34,7 +34,13 @@
 - Create: `AutoFeed.Core/AutoFeed.Core.csproj`
 - Create: `AutoFeed.Core/FeedingLogic.cs`
 
-- [ ] **Step 1: Create the project file**
+- [ ] **Step 1: Create the directory**
+
+```bash
+mkdir -p AutoFeed.Core
+```
+
+- [ ] **Step 2: Create the project file**
 
 Create `AutoFeed.Core/AutoFeed.Core.csproj`:
 
@@ -49,7 +55,7 @@ Create `AutoFeed.Core/AutoFeed.Core.csproj`:
 </Project>
 ```
 
-- [ ] **Step 2: Create FeedingLogic.cs with stubs**
+- [ ] **Step 3: Create FeedingLogic.cs with stubs**
 
 Create `AutoFeed.Core/FeedingLogic.cs`:
 
@@ -81,7 +87,7 @@ public static class FeedingLogic
 }
 ```
 
-- [ ] **Step 3: Build to verify the project compiles**
+- [ ] **Step 4: Build to verify the project compiles**
 
 Run from repo root:
 ```bash
@@ -89,7 +95,7 @@ dotnet build AutoFeed.Core/AutoFeed.Core.csproj
 ```
 Expected: Build succeeds.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add AutoFeed.Core/
@@ -104,7 +110,13 @@ git commit -m "feat: add AutoFeed.Core project with FeedingLogic stubs"
 - Create: `AutoFeed.Tests/AutoFeed.Tests.csproj`
 - Create: `AutoFeed.Tests/FeedingLogicTests.cs`
 
-- [ ] **Step 1: Create the test project file**
+- [ ] **Step 1: Create the directory**
+
+```bash
+mkdir -p AutoFeed.Tests
+```
+
+- [ ] **Step 2: Create the test project file**
 
 Create `AutoFeed.Tests/AutoFeed.Tests.csproj`:
 
@@ -126,7 +138,7 @@ Create `AutoFeed.Tests/AutoFeed.Tests.csproj`:
 </Project>
 ```
 
-- [ ] **Step 2: Create FeedingLogicTests.cs**
+- [ ] **Step 3: Create FeedingLogicTests.cs**
 
 Create `AutoFeed.Tests/FeedingLogicTests.cs`:
 
@@ -247,14 +259,14 @@ public class FeedingLogicTests
 }
 ```
 
-- [ ] **Step 3: Run tests — verify all 11 fail with NotImplementedException**
+- [ ] **Step 4: Run tests — verify all 11 fail with NotImplementedException**
 
 ```bash
 dotnet test AutoFeed.Tests/AutoFeed.Tests.csproj --verbosity normal
 ```
 Expected: 11 tests fail with `System.NotImplementedException`.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add AutoFeed.Tests/
@@ -372,7 +384,14 @@ global using HarmonyLib;
 global using UnityEngine;
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 3: Verify tests still pass (confirms ProjectReference resolves correctly)**
+
+```bash
+dotnet test AutoFeed.Tests/AutoFeed.Tests.csproj --verbosity normal
+```
+Expected: `11 passed, 0 failed`.
+
+- [ ] **Step 4: Commit**
 
 ```bash
 git add AutoFeed.csproj GlobalUsing.cs
@@ -544,7 +563,13 @@ git commit -m "chore: add AutoFeed.Core and AutoFeed.Tests to solution"
 **Files:**
 - Create: `.github/workflows/test.yml`
 
-- [ ] **Step 1: Create the workflow file**
+- [ ] **Step 1: Create the directory**
+
+```bash
+mkdir -p .github/workflows
+```
+
+- [ ] **Step 2: Create the workflow file**
 
 Create `.github/workflows/test.yml`:
 
@@ -575,7 +600,7 @@ jobs:
         run: dotnet test AutoFeed.Tests/AutoFeed.Tests.csproj --no-restore --verbosity normal
 ```
 
-- [ ] **Step 2: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
 git add .github/workflows/test.yml

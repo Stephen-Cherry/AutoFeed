@@ -123,7 +123,7 @@ Add a `ProjectReference` to `AutoFeed.Core`:
 
 ```xml
 <ItemGroup>
-  <ProjectReference Include="..\AutoFeed.Core\AutoFeed.Core.csproj" />
+  <ProjectReference Include="AutoFeed.Core\AutoFeed.Core.csproj" />
 </ItemGroup>
 ```
 
