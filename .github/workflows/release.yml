@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Patch manifest.json
+        run: |
+          jq --arg v "${{ steps.version.outputs.version }}" \
+            '.version_number = $v' manifest.json > manifest.tmp \
+            && mv manifest.tmp manifest.json
+
+      - name: Build
+        run: dotnet build AutoFeed.csproj -c Release
+
+      - name: Run tests
+        run: dotnet test AutoFeed.Tests/AutoFeed.Tests.csproj --no-restore --verbosity normal
+
+      - name: Package for Thunderstore
+        run: |
+          mkdir thunderstore
+          cp manifest.json thunderstore/
+          cp icon.png thunderstore/
+          cp README.md thunderstore/
+          cp AutoFeed/bin/Release/net48/Narolith.AutoFeed.dll thunderstore/
+          cd thunderstore && zip -r "../AutoFeed-${{ steps.version.outputs.version }}.zip" .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: AutoFeed-${{ steps.version.outputs.version }}.zip
+          body_path: CHANGELOG.md
