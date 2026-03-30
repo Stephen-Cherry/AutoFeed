@@ -78,6 +78,18 @@ public class FeedingLogicTests
     }
 
     [Fact]
+    public void ShouldFeed_ReturnsTrue_WhenExactlyAtIntervalBoundary()
+    {
+        var result = FeedingLogic.ShouldFeed(
+            animalId: 1,
+            currentTime: 5.1f,
+            lastFeedTimes: new Dictionary<int, float> { [1] = 5.0f },
+            interval: 0.1f
+        );
+        Assert.True(result);
+    }
+
+    [Fact]
     public void ShouldFeed_TracksAnimalsIndependently()
     {
         var lastFeedTimes = new Dictionary<int, float> { [1] = 5.0f };
