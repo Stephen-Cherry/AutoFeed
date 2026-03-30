@@ -1,3 +1,8 @@
+## 0.3.0
+
+- Mod is now server-side only — install on the server, clients no longer need it
+- Feeding logic now only executes on the server, preventing double-feeding in multiplayer
+
 ## 0.2.5
 
 - Fixed plugin build glob excluding sibling projects (AutoFeed.Core, AutoFeed.Tests)
