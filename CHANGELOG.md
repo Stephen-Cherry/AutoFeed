@@ -1,3 +1,7 @@
+## 0.3.2
+
+- Fixed animals not feeding from chests — AutoFeed.Core.dll was missing from the Thunderstore package; FeedingLogic is now compiled directly into the main DLL so only one file needs to be shipped
+
 ## 0.3.1
 
 - Updated README with server-side installation instructions and configuration table
