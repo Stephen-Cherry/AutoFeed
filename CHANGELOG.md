@@ -1,3 +1,11 @@
+## 1.0.1
+
+- Performance: container scan results are now cached per animal (configurable TTL, default 5s), eliminating the full `Piece.s_allPieces` scan on every AI tick
+- Performance: distance calculations in container sorting now use `sqrMagnitude` instead of `Vector3.Distance`, removing redundant square root operations
+- Performance: consumable lookup structure is now built once per feed attempt instead of once per container scanned, reducing GC pressure
+- Fixed: `MissingReferenceException` when a cached container is destroyed during its TTL window
+- Added `Container Cache TTL` config option (default `5`)
+
 ## 1.0.0
 
 - Mod is now client and server side — all connected clients must have the mod installed
