@@ -123,4 +123,30 @@ public class FeedingLogicTests
     {
         Assert.True(FeedingLogic.IsEligibleContainer("Cart", 5, ""));
     }
+
+    // --- IsCacheValid ---
+
+    [Fact]
+    public void IsCacheValid_ReturnsTrue_WhenWithinTtl()
+    {
+        Assert.True(FeedingLogic.IsCacheValid(cachedTimestamp: 0f, currentTime: 4.9f, ttl: 5f));
+    }
+
+    [Fact]
+    public void IsCacheValid_ReturnsFalse_WhenTtlExpired()
+    {
+        Assert.False(FeedingLogic.IsCacheValid(cachedTimestamp: 0f, currentTime: 5.1f, ttl: 5f));
+    }
+
+    [Fact]
+    public void IsCacheValid_ReturnsFalse_WhenExactlyAtBoundary()
+    {
+        Assert.False(FeedingLogic.IsCacheValid(cachedTimestamp: 0f, currentTime: 5f, ttl: 5f));
+    }
+
+    [Fact]
+    public void IsCacheValid_ReturnsTrue_WhenCachedJustNow()
+    {
+        Assert.True(FeedingLogic.IsCacheValid(cachedTimestamp: 10f, currentTime: 10f, ttl: 5f));
+    }
 }

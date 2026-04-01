@@ -22,6 +22,7 @@ Configuration is generated at `BepInEx/config/Narolith.AutoFeed.cfg` on first ru
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | Container Range | `10` | Radius (units) in which creatures search for food containers. |
+| Container Cache TTL | `5` | Seconds before the nearby-container list is refreshed for each animal. |
 | Chest Prefix | `piece_chest` | Only containers whose name starts with this prefix are eligible. Leave empty to allow all containers. |
 | Enabled | `true` | Enable or disable the mod. |
 

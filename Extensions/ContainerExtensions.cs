@@ -4,27 +4,15 @@ public static class ContainerExtensions
 {
     public static bool ContainersContainItemFromList(
         this List<Container> containers,
-        List<ItemDrop> itemDrops,
+        Dictionary<string, ItemDrop.ItemData> consumableMap,
         out Container? targetContainer,
         out ItemDrop.ItemData? targetItem
     ) =>
-        FindItemInContainers(
-            containers,
-            CreateItemDictionary(itemDrops),
-            out targetContainer,
-            out targetItem
-        );
-
-    private static Dictionary<string, List<ItemDrop.ItemData>> CreateItemDictionary(
-        List<ItemDrop> itemDrops
-    ) =>
-        itemDrops
-            .GroupBy(i => i.m_itemData.m_shared.m_name)
-            .ToDictionary(g => g.Key, g => g.Select(i => i.m_itemData).ToList());
+        FindItemInContainers(containers, consumableMap, out targetContainer, out targetItem);
 
     private static bool FindItemInContainers(
         List<Container> containers,
-        Dictionary<string, List<ItemDrop.ItemData>> itemDropDict,
+        Dictionary<string, ItemDrop.ItemData> consumableMap,
         out Container? targetContainer,
         out ItemDrop.ItemData? targetItem
     )
@@ -32,7 +20,7 @@ public static class ContainerExtensions
         foreach (var container in containers)
         {
             var items = container.GetInventory().GetAllItems();
-            if (TryFindMatchingItem(items, itemDropDict, out targetItem))
+            if (TryFindMatchingItem(items, consumableMap, out targetItem))
             {
                 targetContainer = container;
                 return true;
@@ -46,22 +34,16 @@ public static class ContainerExtensions
 
     private static bool TryFindMatchingItem(
         List<ItemDrop.ItemData> items,
-        Dictionary<string, List<ItemDrop.ItemData>> itemDropDict,
+        Dictionary<string, ItemDrop.ItemData> consumableMap,
         out ItemDrop.ItemData? targetItem
     )
     {
-        var consumableNames = new HashSet<string>(itemDropDict.Keys);
-        var match = FeedingLogic.FindConsumableInInventory(
-            items.Select(i => i.m_shared.m_name),
-            consumableNames
-        );
-
-        if (match is not null)
-        {
-            targetItem = itemDropDict[match].First();
-            return true;
-        }
-
+        foreach (var item in items)
+            if (consumableMap.TryGetValue(item.m_shared.m_name, out var match))
+            {
+                targetItem = match;
+                return true;
+            }
         targetItem = null;
         return false;
     }
