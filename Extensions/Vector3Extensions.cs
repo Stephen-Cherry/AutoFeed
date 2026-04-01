@@ -2,8 +2,12 @@ namespace AutoFeed;
 
 public static class Vector3Extensions
 {
-    public static List<Container> GetContainersInRange(this Vector3 center, float radiusRange)
+    public static List<Container> GetContainersInRange(this Vector3 center, float radiusRange, int animalId, float currentTime)
     {
+        if (Plugin.ContainerCache.TryGetValue(animalId, out var entry)
+            && FeedingLogic.IsCacheValid(entry.timestamp, currentTime, Plugin.CacheTtl.Value))
+            return entry.containers;
+
         var sqrRadius = radiusRange * radiusRange;
         var result = new List<Container>();
         foreach (var piece in Piece.s_allPieces)
@@ -22,6 +26,7 @@ public static class Vector3Extensions
             .Select(x => x.container)
             .ToList();
 
+        Plugin.ContainerCache[animalId] = (currentTime, sorted);
         return sorted;
     }
 

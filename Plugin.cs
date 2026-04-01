@@ -12,10 +12,12 @@ public class Plugin : BaseUnityPlugin
     private static Harmony? _harmony;
 
     public static readonly Dictionary<int, float> LastFeedTimes = new();
+    internal static readonly Dictionary<int, (float timestamp, List<Container> containers)> ContainerCache = new();
 
     public static ConfigEntry<float> ContainerRange = default!;
     public static ConfigEntry<bool> ModEnabled = default!;
     public static ConfigEntry<string> ChestPrefix = default!;
+    public static ConfigEntry<float> CacheTtl = default!;
 
     private void Awake()
     {
@@ -34,6 +36,12 @@ public class Plugin : BaseUnityPlugin
             "Chest Prefix",
             "piece_chest",
             "Name prefix for containers eligible for auto-feeding. Leave empty to allow all containers."
+        );
+        CacheTtl = Config.Bind(
+            "General",
+            "Container Cache TTL",
+            5f,
+            "Seconds before the nearby-container list is refreshed for each animal."
         );
 
         _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
@@ -74,7 +82,7 @@ public class Plugin : BaseUnityPlugin
 
             var nearbyContainers =
                 ___m_character.gameObject.transform.position.GetContainersInRange(
-                    ContainerRange.Value
+                    ContainerRange.Value, animalId, Time.time
                 );
 
             var foundContainerWithFood = nearbyContainers.ContainersContainItemFromList(
