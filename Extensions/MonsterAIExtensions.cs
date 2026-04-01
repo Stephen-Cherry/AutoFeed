@@ -10,12 +10,8 @@ public static class MonsterAIExtensions
         ItemDrop.ItemData item
     )
     {
-        var animalId = ___m_character.GetInstanceID();
-        if (FeedingLogic.ShouldFeed(animalId, Time.time, Plugin.LastFeedTimes, PluginSettings.FeedInterval))
-        {
-            FeedAnimal(__instance, ___m_tamable, ___m_character, container, item);
-            Plugin.LastFeedTimes[animalId] = Time.time;
-        }
+        FeedAnimal(__instance, ___m_tamable, ___m_character, container, item);
+        Plugin.LastFeedTimes[___m_character.GetInstanceID()] = Time.time;
     }
 
     private static void FeedAnimal(
@@ -30,6 +26,9 @@ public static class MonsterAIExtensions
             return;
 
         monsterAI.ConsumeItem(character);
+
+        var containerNview = container.GetComponent<ZNetView>();
+        if (containerNview is null || !containerNview.IsValid()) return;
 
         container.GetInventory().RemoveItem(item.m_shared.m_name, 1);
         Traverse.Create(container.GetInventory()).Method("Changed").GetValue();
