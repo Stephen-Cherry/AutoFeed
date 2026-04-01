@@ -6,7 +6,10 @@ public static class Vector3Extensions
     {
         if (Plugin.ContainerCache.TryGetValue(animalId, out var entry)
             && FeedingLogic.IsCacheValid(entry.timestamp, currentTime, Plugin.CacheTtl.Value))
+        {
+            entry.containers.RemoveAll(c => c == null);
             return entry.containers;
+        }
 
         var sqrRadius = radiusRange * radiusRange;
         var result = new List<Container>();
