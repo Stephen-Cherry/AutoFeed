@@ -1,3 +1,10 @@
+## 1.0.0
+
+- Mod is now client and server side — all connected clients must have the mod installed
+- Fixed feeding not working on dedicated servers: creature AI now runs on the ZDO owner (client or server) rather than assuming server-only execution
+- Container discovery now uses Valheim's piece registry instead of physics queries, fixing containers not being found on clients
+- Fixed performance issue: container queries now run at most once every 5 seconds per animal instead of every AI tick
+
 ## 0.3.2
 
 - Fixed animals not feeding from chests — AutoFeed.Core.dll was missing from the Thunderstore package; FeedingLogic is now compiled directly into the main DLL so only one file needs to be shipped

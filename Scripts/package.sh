@@ -13,6 +13,7 @@ STAGING=$(mktemp -d)
 jq --arg v "$VERSION" '.version_number = $v' manifest.json > "$STAGING/manifest.json"
 cp icon.png "$STAGING/"
 cp README.md "$STAGING/"
+cp CHANGELOG.md "$STAGING/"
 cp "bin/Release/net48/Narolith.AutoFeed.dll" "$STAGING/"
 
 (cd "$STAGING" && zip -r "$OLDPWD/$ZIP" .)

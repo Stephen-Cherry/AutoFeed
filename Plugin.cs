@@ -3,7 +3,7 @@ namespace AutoFeed;
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 [BepInDependency(Jotunn.Main.ModGuid)]
 [Jotunn.Utils.NetworkCompatibility(
-    Jotunn.Utils.CompatibilityLevel.ServerMustHaveMod,
+    Jotunn.Utils.CompatibilityLevel.EveryoneMustHaveMod,
     Jotunn.Utils.VersionStrictness.Minor
 )]
 public class Plugin : BaseUnityPlugin
@@ -59,13 +59,17 @@ public class Plugin : BaseUnityPlugin
             bool IsTamedAndHungry() => ___m_tamable is not null && ___m_tamable.IsHungry();
 
             if (
-                !ZNet.instance.IsServer()
+                Player.m_localPlayer is null
                 || !ModEnabled()
                 || !HasCharacterData()
                 || !IsTamedAndHungry()
                 || !HasValidFoodTypes()
                 || HasFoundFood()
             )
+                return;
+
+            var animalId = ___m_character.GetInstanceID();
+            if (!FeedingLogic.ShouldFeed(animalId, Time.time, Plugin.LastFeedTimes, PluginSettings.FeedInterval))
                 return;
 
             var nearbyContainers =
