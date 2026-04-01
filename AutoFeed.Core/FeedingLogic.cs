@@ -45,4 +45,10 @@ public static class FeedingLogic
             return false;
         return itemCount > 0;
     }
+
+    /// <summary>
+    /// Returns true if the cached value is still within the TTL window.
+    /// </summary>
+    public static bool IsCacheValid(float cachedTimestamp, float currentTime, float ttl) =>
+        currentTime - cachedTimestamp < ttl;
 }
