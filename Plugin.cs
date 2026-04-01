@@ -82,7 +82,11 @@ public class Plugin : BaseUnityPlugin
 
             var consumableMap = new Dictionary<string, ItemDrop.ItemData>();
             foreach (var drop in ___m_consumeItems)
-                consumableMap.TryAdd(drop.m_itemData.m_shared.m_name, drop.m_itemData);
+            {
+                var name = drop.m_itemData.m_shared.m_name;
+                if (!consumableMap.ContainsKey(name))
+                    consumableMap[name] = drop.m_itemData;
+            }
 
             var nearbyContainers =
                 ___m_character.gameObject.transform.position.GetContainersInRange(
