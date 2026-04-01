@@ -80,13 +80,16 @@ public class Plugin : BaseUnityPlugin
             if (!FeedingLogic.ShouldFeed(animalId, Time.time, Plugin.LastFeedTimes, PluginSettings.FeedInterval))
                 return;
 
+            var consumableMap = ___m_consumeItems
+                .ToDictionary(i => i.m_itemData.m_shared.m_name, i => i.m_itemData);
+
             var nearbyContainers =
                 ___m_character.gameObject.transform.position.GetContainersInRange(
                     ContainerRange.Value, animalId, Time.time
                 );
 
             var foundContainerWithFood = nearbyContainers.ContainersContainItemFromList(
-                ___m_consumeItems,
+                consumableMap,
                 out var container,
                 out var item
             );
