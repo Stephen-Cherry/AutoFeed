@@ -7,6 +7,7 @@ public static class FeedingLogic
     /// <summary>
     /// Returns the name of the first inventory item that matches a consumable,
     /// or null if none found.
+    /// Retained for unit test support — production feeding logic uses direct dictionary lookup.
     /// </summary>
     public static string? FindConsumableInInventory(
         IEnumerable<string> inventoryItemNames,

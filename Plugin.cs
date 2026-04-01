@@ -80,8 +80,9 @@ public class Plugin : BaseUnityPlugin
             if (!FeedingLogic.ShouldFeed(animalId, Time.time, Plugin.LastFeedTimes, PluginSettings.FeedInterval))
                 return;
 
-            var consumableMap = ___m_consumeItems
-                .ToDictionary(i => i.m_itemData.m_shared.m_name, i => i.m_itemData);
+            var consumableMap = new Dictionary<string, ItemDrop.ItemData>();
+            foreach (var drop in ___m_consumeItems)
+                consumableMap.TryAdd(drop.m_itemData.m_shared.m_name, drop.m_itemData);
 
             var nearbyContainers =
                 ___m_character.gameObject.transform.position.GetContainersInRange(
