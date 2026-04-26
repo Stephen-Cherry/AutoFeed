@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Documentation: Incorrect tags on the mod in Thunderstore showing server-side when this is a client and server required mod as of 1.0.0
+
 ## 1.0.1
 
 - Performance: container scan results are now cached per animal (configurable TTL, default 5s), eliminating the full `Piece.s_allPieces` scan on every AI tick
