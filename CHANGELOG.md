@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Documentation: Fixed README incorrectly stating server-only installation; mod requires both server and client
+
 ## 1.0.2
 
 - Documentation: Incorrect tags on the mod in Thunderstore showing server-side when this is a client and server required mod as of 1.0.0
