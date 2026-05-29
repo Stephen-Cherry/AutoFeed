@@ -7,13 +7,12 @@ Auto Feed is a Valheim mod that automatically feeds tameable creatures from near
 - **Automatic Feeding**: Tameable creatures within range of a chest containing their food will be fed automatically.
 - **Configurable Range**: Set the radius creatures will search for containers.
 - **Chest Filtering**: Optionally restrict feeding to specific chest types by name prefix.
-- **Server-side**: Install on the server only — clients do not need the mod.
+- **Server and client required**: Install on both the server and all clients. Feeding logic runs on each client; the server installation is required for the network compatibility check.
 
 ## Installation
 
-1. Install [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/) on your dedicated server.
-2. Place `Narolith.AutoFeed.dll` in `BepInEx/plugins/` on the server.
-3. Clients do not need to install anything.
+1. Install [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/) on your server and each client.
+2. Place `Narolith.AutoFeed.dll` in `BepInEx/plugins/` on both the server and each client.
 
 ## Configuration
 
