@@ -1,3 +1,10 @@
+## 1.0.4
+
+- Fixed: `MissingMethodException` on `EffectList.Create` during animal feeding that aborted `MonoUpdaters.FixedUpdate` and caused player movement gliding/control lock (#21)
+- Fixed: `AutoFeed.csproj` now imports `DoPrebuild.props` and `Environment.props` directly so standalone builds (`Scripts/package.sh`) always run the Jotunn prebuild publicizer against the current Valheim assemblies
+- Fixed: Feed throttling timestamp is now recorded before executing feed effects, and container `ZNetView` validity is checked before triggering consume effects
+- Removed redundant/broken `Traverse` reflection calls in `MonsterAIExtensions` in favor of direct publicized calls
+
 ## 1.0.3
 
 - Documentation: Fixed README incorrectly stating server-only installation; mod requires both server and client

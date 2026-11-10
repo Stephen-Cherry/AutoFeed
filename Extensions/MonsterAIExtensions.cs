@@ -10,8 +10,8 @@ public static class MonsterAIExtensions
         ItemDrop.ItemData item
     )
     {
-        FeedAnimal(__instance, ___m_tamable, ___m_character, container, item);
         Plugin.LastFeedTimes[___m_character.GetInstanceID()] = Time.time;
+        FeedAnimal(__instance, ___m_tamable, ___m_character, container, item);
     }
 
     private static void FeedAnimal(
@@ -25,14 +25,14 @@ public static class MonsterAIExtensions
         if (tamable is null || monsterAI is null || !tamable.IsHungry())
             return;
 
+        var containerNview = container.GetComponent<ZNetView>();
+        if (containerNview is null || !containerNview.IsValid())
+            return;
+
         monsterAI.ConsumeItem(character);
 
-        var containerNview = container.GetComponent<ZNetView>();
-        if (containerNview is null || !containerNview.IsValid()) return;
-
         container.GetInventory().RemoveItem(item.m_shared.m_name, 1);
-        Traverse.Create(container.GetInventory()).Method("Changed").GetValue();
-        Traverse.Create(container).Method("Save").GetValue();
+        container.Save();
     }
 
     public static void ConsumeItem(this MonsterAI monsterAI, Character character)
@@ -46,11 +46,7 @@ public static class MonsterAIExtensions
             variant: -1
         );
 
-        var animator = Traverse
-            .Create(monsterAI)
-            .Field("m_animator")
-            .GetValue<ZSyncAnimation>();
-        animator?.SetTrigger("consume");
+        monsterAI.m_animator?.SetTrigger("consume");
     }
 
 }
