@@ -1,11 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="Environment.props" Condition="Exists('Environment.props')" />
+  <Import Project="DoPrebuild.props" Condition="Exists('DoPrebuild.props') And '$(ExecutePrebuild)' == ''" />
+
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>Narolith.AutoFeed</AssemblyName>
     <Title>Auto Feed</Title>
     <Description>Valheim mod to auto feed animals from a nearby chest</Description>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
